@@ -35,27 +35,17 @@
   <link rel="stylesheet" href="assets/css/glide-custom.css">
 
   <style>
-    .hr-lines {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      width: 100%;
+    /* Custom Header Box Style */
+    .custom-header-box {
+      display: inline-block;
+      background-color: #363636; /* Dark Grey */
+      color: #ffffff !important; /* White Text */
+      padding: 10px 30px;
+      border-radius: 12px; /* Rounded corners */
+      box-shadow: 0 4px 6px rgba(0,0,0,0.15); /* Subtle shadow for lift */
+      margin-bottom: 25px;
     }
-    .hr-lines::before,
-    .hr-lines::after {
-      content: "";
-      flex: 1;
-      border-bottom: 2px solid #363636;
-      margin: 0 25px; /* Spacing to prevent overlap */
-    }
-    @media screen and (max-width: 768px) {
-      .hr-lines::before,
-      .hr-lines::after {
-        margin: 0 10px;
-      }
-    }
-    
+
     /* Multi-row grid spacing */
     .thumb-row {
       margin-bottom: 15px; /* Space between rows */
@@ -187,7 +177,7 @@
     <div class="container is-max-desktop">
       <div class="columns is-centered has-text-centered">
         <div class="column is-full-width">
-          <h2 class="title is-3">TL;DR</h2>
+          <h2 class="title is-3 custom-header-box">TL;DR</h2>
           <div class="content has-text-centered is-size-5">
             <p>
               <b>Split-then-Merge (StM)</b> is a new video composition framework that improves control and handles data scarcity by splitting unlabeled videos into foreground and background layers, and then self-composing them.
@@ -236,7 +226,7 @@
     <div class="container is-max-desktop">
       <div class="columns is-centered has-text-centered">
         <div class="column is-full-width">
-          <h2 class="title is-3 hr-lines">Method</h2>
+          <h2 class="title is-3 custom-header-box">Method</h2>
           <div class="content has-text-justified">
 
             
@@ -272,7 +262,7 @@
     <div class="container is-max-desktop">
       <div class="columns is-centered has-text-centered">
         <div class="column is-full-width">
-          <h2 class="title is-3 hr-lines">StM-50K Test Examples</h2>
+          <h2 class="title is-3 custom-header-box">StM-50K Test Examples</h2>
           <div class="video-selector-container" id="gallery-test">
             <div class="main-stage">
               <div class="columns is-vcentered">
@@ -331,7 +321,7 @@
     <div class="container is-max-desktop">
       <div class="columns is-centered has-text-centered">
         <div class="column is-full-width">
-          <h2 class="title is-3 hr-lines">Additional Results (Indoor)</h2>
+          <h2 class="title is-3 custom-header-box">Additional Results (Indoor)</h2>
           <div class="video-selector-container" id="gallery-indoor">
             <div class="main-stage">
               <div class="columns is-vcentered">
@@ -386,7 +376,7 @@
     <div class="container is-max-desktop">
       <div class="columns is-centered has-text-centered">
         <div class="column is-full-width">
-          <h2 class="title is-3 hr-lines">Additional Results (Outdoor)</h2>
+          <h2 class="title is-3 custom-header-box">Additional Results (Outdoor)</h2>
           <div class="video-selector-container" id="gallery-outdoor">
             <div class="main-stage">
               <div class="columns is-vcentered">
@@ -445,7 +435,7 @@
     <div class="container is-max-desktop">
       <div class="columns is-centered has-text-centered">
         <div class="column is-full-width">
-          <h2 class="title is-3 hr-lines">Multi Object Composition</h2>
+          <h2 class="title is-3 custom-header-box">Multi Object Composition</h2>
           <div class="video-selector-container" id="gallery-multi">
             <div class="main-stage">
               <div class="columns is-vcentered">
@@ -492,7 +482,7 @@
     <div class="container is-max-desktop">
       <div class="columns is-centered has-text-centered">
         <div class="column is-full-width">
-          <h2 class="title is-3 hr-lines">Logically Impossible Composition</h2>
+          <h2 class="title is-3 custom-header-box">Logically Impossible Composition</h2>
           <div class="video-selector-container" id="gallery-impossible">
             <div class="main-stage">
               <div class="columns is-vcentered">
@@ -543,7 +533,7 @@
     <div class="container is-max-desktop">
       <div class="columns is-centered has-text-centered">
         <div class="column is-full-width">
-          <h2 class="title is-3 hr-lines">SOTA Comparison</h2>
+          <h2 class="title is-3 custom-header-box">SOTA Comparison</h2>
           <div class="content has-text-centered">
             
             <div class="columns is-mobile is-centered is-variable is-1">
@@ -677,7 +667,7 @@
 
 <section class="section" id="References">
   <div class="container is-max-desktop content">
-    <h2 class="title">References</h2>
+    <h2 class="title custom-header-box">References</h2>
     <p>
       <a name="ref-skyreels" id="ref-skyreels"></a>
       [1] Zhengcong Fei, Debang Li, Di Qiu, Jiahua Wang, Yikun Dou, Rui Wang, Jingtao Xu, Mingyuan Fan, Guibin Chen, Yang Li, et al. 
@@ -703,7 +693,7 @@
 
 <section class="section" id="BibTeX">
     <div class="container is-max-desktop content">
-      <h2 class="title">BibTeX</h2>
+      <h2 class="title custom-header-box">BibTeX</h2>
       <pre><code>@article{kara2025stm,
   title={Layer-Aware Video Composition via Split-then-Merge},
   author={Kara, Ozgur and Chen, Yujia and Yang, Ming-Hsuan and Rehg, James Matthew and Chu, Wen-Sheng and Tran, Du},
