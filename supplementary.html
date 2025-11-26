@@ -1,0 +1,882 @@
+<html xmlns="http://www.w3.org/1999/xhtml"><head><link href="https://fonts.cdnfonts.com/css/chalkduster" rel="stylesheet">
+<style>
+    @import url('https://fonts.cdnfonts.com/css/chalkduster');
+    .page-container {
+        font-family: "Helvetica", "Arial", sans-serif;
+        max-width: 1200px;
+        margin: auto;
+    }
+    table {
+        margin-bottom: 20px;
+        border-collapse: collapse;
+    }
+    /* CHANGED: vertical-align set to middle to center single videos against the stacked inputs */
+    th, td {
+        vertical-align: middle; 
+        text-align: center;
+        padding: 5px;
+        font-weight: normal;
+    }
+    /* Ensure videos align nicely when stacked */
+    .stacked-video {
+        margin-bottom: 5px;
+    }
+    /* Style for the names below videos - BOLD */
+    .video-label {
+        font-size: 14px;
+        color: #333;
+        margin-top: 5px;
+        display: block;
+        font-weight: bold;
+    }
+    .video-label-highlight {
+        font-size: 14px;
+        color: #dc3911;
+        font-weight: bold;
+        margin-top: 5px;
+        display: block;
+    }
+    .subsection-title {
+        font-size: 20px; 
+        font-weight: bold; 
+        padding-top: 20px; 
+        padding-bottom: 10px;
+        text-align: left;
+        color: #444;
+    }
+</style>
+
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>Layer-Aware Video Composition via Split-then-Merge</title>
+<link href="style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+    <button style="position: fixed;right: 15px;top:  50%;height: 100px;width: 100px; font-size: 20px;" type="button"><a href="#top">Back to top</a></button> 
+<div class="page-container">
+  <h1 align="center">Layer-Aware Video Composition via Split-then-Merge</h1>
+  <h2 align="center">Supplementary Material</h2>
+    
+  <p align="center">&nbsp;</p>
+  <p align="justify" style="font-size: 18px">
+    We present <strong>Split-then-Merge (StM)</strong>, a novel framework designed to enhance control in generative video composition. 
+    Unlike conventional methods relying on annotated datasets, StM splits unlabeled videos into dynamic foreground and background layers, then self-composes them to learn realistic interactions.
+    In this supplementary file, we provide full video results, comparisons, and dataset details.
+  </p>
+  <a href="#top"></a>
+  <ul>
+    <li><a href="#overview">Split-then-Merge Overview (Figure 1)</a></li>
+    <li><a href="#motivation">Motivation - Figure 2</a></li>
+    <li><a href="#our-results">Our Results (Figure 1b & 5)</a></li>
+    <li><a href="#experimental-results">Additional Experimental Results (Manually Collected Dataset, Logically Impossible, Multi-Object)</a></li>
+    <li><a href="#comparison">Qualitative Comparison - Figure 6</a></li>
+    <li><a href="#ablation">Ablation Study</a></li>
+    <li><a href="#user-study">User Study / VLLM As A Judge</a></li>
+    <li><a href="#dataset">Dataset Information</a></li>
+    <li><a href="#limitations">Limitations</a></li>
+  </ul>
+    
+    <hr style="height:3px">
+    <h2 id="overview" align="left"><a name="overview"></a>Split-then-Merge Overview (Figure 1)</h2>
+    
+    <table width="100%" align="center">
+        <tbody>
+            <tr>
+                <th align="center" width="50%">
+                    <video width="100%" src="assets/method_overview/overview_v2.mp4" autoplay="" loop="" controls="" muted=""> </video>
+                    <span class="video-label">Training (Figure 1a)</span>
+                </th>
+                <th align="center" width="50%">
+                    <video width="100%" src="assets/method_overview/animation_v2.mp4" autoplay="" loop="" controls="" muted=""> </video>
+                    <span class="video-label">Inference (Figure 1b)</span>
+                </th>
+            </tr>
+        </tbody>
+    </table>
+
+    <p align="justify" style="font-size: 16px; margin-top: 10px;">
+        <strong>Figure 1. Video Composition via Split-then-Merge.</strong> 
+        (a) <strong>Training:</strong> The Decomposer splits an unlabeled video into foreground and background layers and generates a caption, while the Composer learns to merge them for reconstruction.
+        (b) <strong>Inference:</strong> The Composer integrates a foreground video into novel background videos, and ensures affordance-aware placement (e.g., a pig on a forest road, NYC walkway, or lunar surface) with realistic harmonization (motion, lighting, shadows).
+    </p>
+
+    <hr style="height:3px">
+    
+  <h2 id="motivation" align="left"><a name="motivation"></a>Motivation (Figure 2)</h2>
+
+  <p>
+    Standard approaches fail to solve generative video composition effectively. 
+    <strong>Image-based methods</strong> (Object Insertion + I2V, SkyReels) discard the rich temporal information of the foreground, leading to hallucinated motion.
+    <strong>Naive Video methods</strong> (Copy-Paste) violate affordance (placing a swan on land), or suffer from appearance drift when fine-tuned naively (black swan turning white).
+  </p>
+
+  <table width="1200" align="center">
+    <tbody>
+        <tr>
+            <th valign="middle">
+                <a href="assets/fig2/fg_cb.mp4"> <video width="200" src="assets/fig2/fg_cb.mp4" autoplay="" loop="" controls="" muted="" class="stacked-video"> </video></a> 
+                <span class="video-label">Input Foreground</span>
+                <br>
+                <a href="assets/fig2/bg.mp4"> <video width="200" src="assets/fig2/bg.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Background</span>
+            </th>
+            <th>
+                <a href="assets/fig2/a.mp4"> <video width="200" src="assets/fig2/a.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">(a) Object Insertion + I2V</span>
+            </th>
+            <th>
+                <a href="assets/fig2/b.mp4"> <video width="200" src="assets/fig2/b.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">(b) SkyReels</span>
+            </th>
+            <th>
+                <a href="assets/fig2/c.mp4"> <video width="200" src="assets/fig2/c.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">(c) Copy-Paste</span>
+            </th>
+            <th>
+                <a href="assets/fig2/d.mp4"> <video width="200" src="assets/fig2/d.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">(d) Naive I2V</span>
+            </th>
+            <th>
+                <a href="assets/fig2/e.mp4"> <video width="200" src="assets/fig2/e.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label-highlight">(e) StM (Ours)</span>
+            </th>
+        </tr>
+        <tr>
+            <td align="center" colspan="6">
+                <em>(a-b) discard motion. (c) violates affordance. (d) appearance drift. (e) StM preserves identity, motion, and affordance.</em>
+            </td>
+        </tr>
+  </tbody></table>
+  <hr style="height:3px">
+
+<h2 id="our-results" align="left"><a name="our-results"></a>Our Results (Figure 1b & 5)</h2>
+
+<p>
+    StM allows for <strong>affordance-aware placement</strong> and <strong>harmonization</strong>. 
+    Below we show the results from Figure 1b, where a foreground subject (a pig) is composited into vastly different environments.
+</p>
+
+<h3 align="left">Figure 1b: Multi-Scene Composition</h3>
+<table width="1200" align="center">
+  <tbody>
+      <tr>
+        <td colspan="3" align="center" style="font-family: Chalkduster; padding-top:10px;">"A pig is walking in the forest"</td>
+      </tr>
+      <tr>
+          <th>
+              <a href="assets/fig1/pig-jungle/fg_cb.mp4"> <video width="300" src="assets/fig1/pig-jungle/fg_cb.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">Input Foreground</span>
+          </th>
+          <th>
+              <a href="assets/fig1/pig-jungle/bg.mp4"> <video width="300" src="assets/fig1/pig-jungle/bg.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">Input Background</span>
+          </th>
+          <th>
+              <a href="assets/fig1/pig-jungle/gen.mp4"> <video width="300" src="assets/fig1/pig-jungle/gen.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">Composed Result</span>
+          </th>
+      </tr>
+
+      <tr>
+        <td colspan="3" align="center" style="font-family: Chalkduster; padding-top:10px;">"A pig is looking around in New York City"</td>
+      </tr>
+      <tr>
+          <th>
+              <a href="assets/fig1/pig-newyork/fg_cb.mp4"> <video width="300" src="assets/fig1/pig-newyork/fg_cb.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">Input Foreground</span>
+          </th>
+          <th>
+              <a href="assets/fig1/pig-newyork/bg.mp4"> <video width="300" src="assets/fig1/pig-newyork/bg.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">Input Background</span>
+          </th>
+          <th>
+              <a href="assets/fig1/pig-newyork/gen.mp4"> <video width="300" src="assets/fig1/pig-newyork/gen.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">Composed Result</span>
+          </th>
+      </tr>
+
+      <tr>
+        <td colspan="3" align="center" style="font-family: Chalkduster; padding-top:10px;">"A pig is wandering around on the moon"</td>
+      </tr>
+      <tr>
+          <th>
+              <a href="assets/fig1/pig-moon/fg_cb.mp4"> <video width="300" src="assets/fig1/pig-moon/fg_cb.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">Input Foreground</span>
+          </th>
+          <th>
+              <a href="assets/fig1/pig-moon/bg.mp4"> <video width="300" src="assets/fig1/pig-moon/bg.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">Input Background</span>
+          </th>
+          <th>
+              <a href="assets/fig1/pig-moon/gen.mp4"> <video width="300" src="assets/fig1/pig-moon/gen.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">Composed Result</span>
+          </th>
+      </tr>
+  </tbody>
+</table>
+
+<br>
+<h3 align="left">Figure 5: Qualitative Results</h3>
+<p>
+    Results demonstrating robustness in motion preservation and affordance.
+</p>
+
+<table width="1200" align="center">
+  <tbody>
+      <tr><td colspan="3" align="center" style="font-family: Chalkduster; padding-top:10px;">"A duck is swimming on water"</td></tr>
+      <tr>
+          <th>
+              <a href="assets/fig5/ex1/fg_cb.mp4"> <video width="300" src="assets/fig5/ex1/fg_cb.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">Input Foreground</span>
+          </th>
+          <th>
+              <a href="assets/fig5/ex1/bg.mp4"> <video width="300" src="assets/fig5/ex1/bg.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">Input Background</span>
+          </th>
+          <th>
+              <a href="assets/fig5/ex1/ours.mp4"> <video width="300" src="assets/fig5/ex1/ours.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">Composed Result</span>
+          </th>
+      </tr>
+
+      <tr><td colspan="3" align="center" style="font-family: Chalkduster; padding-top:10px;">"A cheetah is running on a grassy hill"</td></tr>
+      <tr>
+          <th>
+              <a href="assets/fig5/ex2/fg_cb.mp4"> <video width="300" src="assets/fig5/ex2/fg_cb.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">Input Foreground</span>
+          </th>
+          <th>
+              <a href="assets/fig5/ex2/bg.mp4"> <video width="300" src="assets/fig5/ex2/bg.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">Input Background</span>
+          </th>
+          <th>
+              <a href="assets/fig5/ex2/ours.mp4"> <video width="300" src="assets/fig5/ex2/ours.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">Composed Result</span>
+          </th>
+      </tr>
+
+      <tr><td colspan="3" align="center" style="font-family: Chalkduster; padding-top:10px;">"A lion cub is sitting on a rock"</td></tr>
+      <tr>
+          <th>
+              <a href="assets/fig5/ex3/fg_cb.mp4"> <video width="300" src="assets/fig5/ex3/fg_cb.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">Input Foreground</span>
+          </th>
+          <th>
+              <a href="assets/fig5/ex3/bg.mp4"> <video width="300" src="assets/fig5/ex3/bg.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">Input Background</span>
+          </th>
+          <th>
+              <a href="assets/fig5/ex3/ours.mp4"> <video width="300" src="assets/fig5/ex3/ours.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">Composed Result</span>
+          </th>
+      </tr>
+
+      <tr><td colspan="3" align="center" style="font-family: Chalkduster; padding-top:10px;">"A black swan is swimming on water"</td></tr>
+      <tr>
+          <th>
+              <a href="assets/fig5/ex4/fg_cb.mp4"> <video width="300" src="assets/fig5/ex4/fg_cb.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">Input Foreground</span>
+          </th>
+          <th>
+              <a href="assets/fig5/ex4/bg.mp4"> <video width="300" src="assets/fig5/ex4/bg.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">Input Background</span>
+          </th>
+          <th>
+              <a href="assets/fig5/ex4/ours.mp4"> <video width="300" src="assets/fig5/ex4/ours.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">Composed Result</span>
+          </th>
+      </tr>
+
+      <tr><td colspan="3" align="center" style="font-family: Chalkduster; padding-top:10px;">"A person is playing tennis in a gym"</td></tr>
+      <tr>
+          <th>
+              <a href="assets/fig5/ex5/fg_cb.mp4"> <video width="300" src="assets/fig5/ex5/fg_cb.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">Input Foreground</span>
+          </th>
+          <th>
+              <a href="assets/fig5/ex5/bg.mp4"> <video width="300" src="assets/fig5/ex5/bg.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">Input Background</span>
+          </th>
+          <th>
+              <a href="assets/fig5/ex5/ours.mp4"> <video width="300" src="assets/fig5/ex5/ours.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">Composed Result</span>
+          </th>
+      </tr>
+
+      <tr><td colspan="3" align="center" style="font-family: Chalkduster; padding-top:10px;">"A race car is driving on a winding road"</td></tr>
+      <tr>
+          <th>
+              <a href="assets/fig5/ex6/fg_cb.mp4"> <video width="300" src="assets/fig5/ex6/fg_cb.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">Input Foreground</span>
+          </th>
+          <th>
+              <a href="assets/fig5/ex6/bg.mp4"> <video width="300" src="assets/fig5/ex6/bg.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">Input Background</span>
+          </th>
+          <th>
+              <a href="assets/fig5/ex6/ours.mp4"> <video width="300" src="assets/fig5/ex6/ours.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">Composed Result</span>
+          </th>
+      </tr>
+
+  </tbody>
+</table>
+
+<br>
+<h3 align="left">Additional Results</h3>
+<p>Here we provide additional diverse results generated by StM, showcasing various subjects and environments.</p>
+<table width="1200" align="center">
+    <tbody>
+        <tr><td colspan="3" align="center" style="font-family: Chalkduster; padding-top:10px;">"A bird is flying"</td></tr>
+        <tr>
+            <th>
+                <a href="assets/fig5/extra1/fg_cb.mp4"> <video width="300" src="assets/fig5/extra1/fg_cb.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Foreground</span>
+            </th>
+            <th>
+                <a href="assets/fig5/extra1/bg.mp4"> <video width="300" src="assets/fig5/extra1/bg.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Background</span>
+            </th>
+            <th>
+                <a href="assets/fig5/extra1/ours.mp4"> <video width="300" src="assets/fig5/extra1/ours.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Composed Result</span>
+            </th>
+        </tr>
+        <tr><td colspan="3" align="center" style="font-family: Chalkduster; padding-top:10px;">"A grey hourse is walking"</td></tr>
+         <tr>
+            <th>
+                <a href="assets/fig5/extra2/fg_cb.mp4"> <video width="300" src="assets/fig5/extra2/fg_cb.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Foreground</span>
+            </th>
+            <th>
+                <a href="assets/fig5/extra2/bg.mp4"> <video width="300" src="assets/fig5/extra2/bg.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Background</span>
+            </th>
+            <th>
+                <a href="assets/fig5/extra2/ours.mp4"> <video width="300" src="assets/fig5/extra2/ours.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Composed Result</span>
+            </th>
+        </tr>
+        <tr><td colspan="3" align="center" style="font-family: Chalkduster; padding-top:10px;">"A boat sailing on the river"</td></tr>
+         <tr>
+            <th>
+                <a href="assets/fig5/extra4/fg_cb.mp4"> <video width="300" src="assets/fig5/extra4/fg_cb.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Foreground</span>
+            </th>
+            <th>
+                <a href="assets/fig5/extra4/bg.mp4"> <video width="300" src="assets/fig5/extra4/bg.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Background</span>
+            </th>
+            <th>
+                <a href="assets/fig5/extra4/ours.mp4"> <video width="300" src="assets/fig5/extra4/ours.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Composed Result</span>
+            </th>
+        </tr>
+        <tr><td colspan="3" align="center" style="font-family: Chalkduster; padding-top:10px;">"A sheep walking on a brownish path"</td></tr>
+         <tr>
+            <th>
+                <a href="assets/fig5/extra5/fg_cb.mp4"> <video width="300" src="assets/fig5/extra5/fg_cb.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Foreground</span>
+            </th>
+            <th>
+                <a href="assets/fig5/extra5/bg.mp4"> <video width="300" src="assets/fig5/extra5/bg.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Background</span>
+            </th>
+            <th>
+                <a href="assets/fig5/extra5/ours.mp4"> <video width="300" src="assets/fig5/extra5/ours.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Composed Result</span>
+            </th>
+        </tr>
+        <tr><td colspan="3" align="center" style="font-family: Chalkduster; padding-top:10px;">"A gorilla grazing in the meadow"</td></tr>
+         <tr>
+            <th>
+                <a href="assets/fig5/extra6/fg_cb.mp4"> <video width="300" src="assets/fig5/extra6/fg_cb.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Foreground</span>
+            </th>
+            <th>
+                <a href="assets/fig5/extra6/bg.mp4"> <video width="300" src="assets/fig5/extra6/bg.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Background</span>
+            </th>
+            <th>
+                <a href="assets/fig5/extra6/ours.mp4"> <video width="300" src="assets/fig5/extra6/ours.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Composed Result</span>
+            </th>
+        </tr>
+    </tbody>
+</table>
+
+<hr style="height:3px">
+<h2 id="experimental-results" align="left"><a name="experimental-results"></a>Additional Experimental Results</h2>
+
+<h3 class="subsection-title">a) Generalization to Manually Collected Backgrounds</h3>
+<p>We collected backgrounds manually via phone under various conditions to test out-of-distribution generalization.</p>
+
+<table width="1200" align="center">
+    <tbody>
+        <tr><td colspan="3" align="center" style="font-size: 18px; font-weight: bold; padding-top: 5px; padding-bottom: 5px; color: #444;">Indoors</td></tr>
+
+        <tr><td colspan="3" align="center" style="font-family: Chalkduster; padding-top:10px;">"A pig is wandering around in the balcony"</td></tr>
+        <tr>
+            <th>
+                <a href="assets/indoor-outdoor/indoor1/fg_cb.mp4"> <video width="300" src="assets/indoor-outdoor/indoor1/fg_cb.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Foreground</span>
+            </th>
+            <th>
+                <a href="assets/indoor-outdoor/indoor1/bg.mp4"> <video width="300" src="assets/indoor-outdoor/indoor1/bg.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Background</span>
+            </th>
+            <th>
+                <a href="assets/indoor-outdoor/indoor1/ours.mp4"> <video width="300" src="assets/indoor-outdoor/indoor1/ours.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Composed Result</span>
+            </th>
+        </tr>
+
+         <tr><td colspan="3" align="center" style="font-family: Chalkduster; padding-top:10px;">"A vibrant orange fox is in a room"</td></tr>
+         <tr>
+             <th>
+                 <a href="assets/indoor-outdoor/indoor2/fg_cb.mp4"> <video width="300" src="assets/indoor-outdoor/indoor2/fg_cb.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                 <span class="video-label">Input Foreground</span>
+             </th>
+             <th>
+                 <a href="assets/indoor-outdoor/indoor2/bg.mp4"> <video width="300" src="assets/indoor-outdoor/indoor2/bg.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                 <span class="video-label">Input Background</span>
+             </th>
+             <th>
+                 <a href="assets/indoor-outdoor/indoor2/ours.mp4"> <video width="300" src="assets/indoor-outdoor/indoor2/ours.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                 <span class="video-label">Composed Result</span>
+             </th>
+         </tr>
+
+        <tr><td colspan="3" align="center" style="font-size: 18px; font-weight: bold; padding-top: 20px; padding-bottom: 5px; color: #444;">Outdoors</td></tr>
+
+        <tr><td colspan="3" align="center" style="font-family: Chalkduster; padding-top:10px;">"An elephant is walking in the dark"</td></tr>
+        <tr>
+            <th>
+                <a href="assets/indoor-outdoor/outdoor1/fg_cb.mp4"> <video width="300" src="assets/indoor-outdoor/outdoor1/fg_cb.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Foreground</span>
+            </th>
+            <th>
+                <a href="assets/indoor-outdoor/outdoor1/bg.mp4"> <video width="300" src="assets/indoor-outdoor/outdoor1/bg.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Background</span>
+            </th>
+            <th>
+                <a href="assets/indoor-outdoor/outdoor1/ours.mp4"> <video width="300" src="assets/indoor-outdoor/outdoor1/ours.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Composed Result</span>
+            </th>
+        </tr>
+
+        <tr><td colspan="3" align="center" style="font-family: Chalkduster; padding-top:10px;">"A car is turning at the crossroads"</td></tr>
+        <tr>
+            <th>
+                <a href="assets/indoor-outdoor/outdoor2/fg_cb.mp4"> <video width="300" src="assets/indoor-outdoor/outdoor2/fg_cb.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Foreground</span>
+            </th>
+            <th>
+                <a href="assets/indoor-outdoor/outdoor2/bg.mp4"> <video width="300" src="assets/indoor-outdoor/outdoor2/bg.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Background</span>
+            </th>
+            <th>
+                <a href="assets/indoor-outdoor/outdoor2/ours.mp4"> <video width="300" src="assets/indoor-outdoor/outdoor2/ours.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Composed Result</span>
+            </th>
+        </tr>
+    </tbody>
+</table>
+
+<h3 class="subsection-title">b) Logically Impossible Composition</h3>
+<p>We test the model's ability to handle logically impossible or surreal prompts, demonstrating its capacity to harmonize affordance even when the prompt contradicts the physical nature of the background.</p>
+
+<table width="1200" align="center">
+    <tbody>
+        <tr><td colspan="3" align="center" style="font-family: Chalkduster; padding-top:10px;">"A boat is floating on a road"</td></tr>
+        <tr>
+            <th>
+                <a href="assets/logically-impossible/ex1/fg_cb.mp4"> <video width="300" src="assets/logically-impossible/ex1/fg_cb.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Foreground</span>
+            </th>
+            <th>
+                <a href="assets/logically-impossible/ex1/bg.mp4"> <video width="300" src="assets/logically-impossible/ex1/bg.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Background</span>
+            </th>
+            <th>
+                <a href="assets/logically-impossible/ex1/ours.mp4"> <video width="300" src="assets/logically-impossible/ex1/ours.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Composed Result</span>
+            </th>
+        </tr>
+        <tr>
+            <td colspan="3" align="center" style="padding-bottom: 20px;">
+                <em>Result rotates the boat to align with the road's perspective and creates water waves in the neighboring area where the boat touches the ground.</em>
+            </td>
+        </tr>
+
+        <tr><td colspan="3" align="center" style="font-family: Chalkduster; padding-top:10px;">"A boat is floating on a road"</td></tr>
+        <tr>
+            <th>
+                <a href="assets/logically-impossible/ex2/fg_cb.mp4"> <video width="300" src="assets/logically-impossible/ex2/fg_cb.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Foreground</span>
+            </th>
+            <th>
+                <a href="assets/logically-impossible/ex2/bg.mp4"> <video width="300" src="assets/logically-impossible/ex2/bg.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Background</span>
+            </th>
+            <th>
+                <a href="assets/logically-impossible/ex2/ours.mp4"> <video width="300" src="assets/logically-impossible/ex2/ours.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Composed Result</span>
+            </th>
+        </tr>
+        <tr>
+            <td colspan="3" align="center" style="padding-bottom: 20px;">
+                <em>The model converts the road texture into a river to satisfy the prompt.</em>
+            </td>
+        </tr>
+
+        <tr><td colspan="3" align="center" style="font-family: Chalkduster; padding-top:10px;">"A duck is swimming"</td></tr>
+        <tr>
+            <th>
+                <a href="assets/logically-impossible/ex3/fg_cb.mp4"> <video width="300" src="assets/logically-impossible/ex3/fg_cb.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Foreground</span>
+            </th>
+            <th>
+                <a href="assets/logically-impossible/ex3/bg.mp4"> <video width="300" src="assets/logically-impossible/ex3/bg.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Background</span>
+            </th>
+            <th>
+                <a href="assets/logically-impossible/ex3/ours.mp4"> <video width="300" src="assets/logically-impossible/ex3/ours.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Composed Result</span>
+            </th>
+        </tr>
+        <tr>
+            <td colspan="3" align="center" style="padding-bottom: 20px;">
+                <em>The ground region surrounding the duck transforms into water with wave dynamics.</em>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<h3 class="subsection-title">c) Multi-Object Composition</h3>
+<p>We demonstrate sequential multi-object composition. In the first step, we compose a pig into an indoor scene. In the second step, we use the generated video from step 1 as the background and insert a second object (a goat).</p>
+
+<table width="1200" align="center">
+    <tbody>
+        <tr><td colspan="3" align="center" style="font-family: Chalkduster; padding-top:10px;">Step 1: "A pig is walking indoors"</td></tr>
+        <tr>
+            <th>
+                <a href="assets/multi-videos/fg_cb1.mp4"> <video width="300" src="assets/multi-videos/fg_cb1.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Foreground 1 (Pig)</span>
+            </th>
+            <th>
+                <a href="assets/multi-videos/bg1.mp4"> <video width="300" src="assets/multi-videos/bg1.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Background</span>
+            </th>
+            <th>
+                <a href="assets/multi-videos/gen1.mp4"> <video width="300" src="assets/multi-videos/gen1.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Result 1 (Bg for Step 2)</span>
+            </th>
+        </tr>
+
+        <tr><td colspan="3" align="center" style="font-family: Chalkduster; padding-top:20px;">Step 2: "A goat is walking indoors"</td></tr>
+        <tr>
+            <th>
+                <a href="assets/multi-videos/fg_cb2.mp4"> <video width="300" src="assets/multi-videos/fg_cb2.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Foreground 2 (Goat)</span>
+            </th>
+            <th>
+                <a href="assets/multi-videos/gen1.mp4"> <video width="300" src="assets/multi-videos/gen1.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Background (Result 1)</span>
+            </th>
+            <th>
+                <a href="assets/multi-videos/gen2.mp4"> <video width="300" src="assets/multi-videos/gen2.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Final Multi-Object Result</span>
+            </th>
+        </tr>
+    </tbody>
+</table>
+<hr style="height:3px">
+    
+  <h2 id="comparison" align="left"><a name="comparison"></a>Qualitative Comparison (Figure 6)</h2>
+  <p>
+    We compare StM against state-of-the-art baselines including <strong>SkyReels</strong>, <strong>AnyV2V</strong>, and cascaded methods (<strong>Qwen+I2V</strong>, <strong>PBE+I2V</strong>).
+    StM uniquely preserves complex dynamics (like camera motion) and achieves affordance-aware harmony.
+  </p>
+
+  <table width="1200" align="center">
+      <tbody>
+        <tr>
+            <td colspan="7" align="center" style="padding-top: 10px;"><strong><span style="font-family: Chalkduster">"A goat is running on a snowy road"</span> (Complex Camera Motion)</strong></td>
+        </tr>
+        <tr>
+            <th valign="middle">
+                <a href="assets/fig6/ex1/fg_cb.mp4"> <video width="170" src="assets/fig6/ex1/fg_cb.mp4" autoplay="" loop="" controls="" muted="" class="stacked-video"> </video></a> 
+                <span class="video-label">Input Foreground</span>
+                <br>
+                <a href="assets/fig6/ex1/bg.mp4"> <video width="170" src="assets/fig6/ex1/bg.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Background</span>
+            </th>
+            <th>
+                <a href="assets/fig6/ex1/copy_paste.mp4"> <video width="170" src="assets/fig6/ex1/copy_paste.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Copy-Paste + I2V</span>
+            </th>
+            <th>
+                <a href="assets/fig6/ex1/pbe.mp4"> <video width="170" src="assets/fig6/ex1/pbe.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">PBE + I2V</span>
+            </th>
+            <th>
+                <a href="assets/fig6/ex1/qwen.mp4"> <video width="170" src="assets/fig6/ex1/qwen.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Qwen + I2V</span>
+            </th>
+            <th>
+                <a href="assets/fig6/ex1/anyv2v.mp4"> <video width="170" src="assets/fig6/ex1/anyv2v.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">AnyV2V</span>
+            </th>
+            <th>
+                <a href="assets/fig6/ex1/skyreels.mp4"> <video width="170" src="assets/fig6/ex1/skyreels.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">SkyReels</span>
+            </th>
+            <th>
+                <a href="assets/fig6/ex1/ours.mp4"> <video width="170" src="assets/fig6/ex1/ours.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label-highlight">StM (Ours)</span>
+            </th>
+        </tr>
+        
+        <tr>
+            <td colspan="7" align="center" style="padding-top: 10px;"><strong><span style="font-family: Chalkduster">"A boat is moving on the water"</span> (Affordance / Waves)</strong></td>
+        </tr>
+        <tr>
+            <th valign="middle">
+                <a href="assets/fig6/ex2/fg_cb.mp4"> <video width="170" src="assets/fig6/ex2/fg_cb.mp4" autoplay="" loop="" controls="" muted="" class="stacked-video"> </video></a> 
+                <span class="video-label">Input Foreground</span>
+                <br>
+                <a href="assets/fig6/ex2/bg.mp4"> <video width="170" src="assets/fig6/ex2/bg.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Background</span>
+            </th>
+            <th>
+                <a href="assets/fig6/ex2/copy_paste.mp4"> <video width="170" src="assets/fig6/ex2/copy_paste.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Copy-Paste + I2V</span>
+            </th>
+            <th>
+                <a href="assets/fig6/ex2/pbe.mp4"> <video width="170" src="assets/fig6/ex2/pbe.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">PBE + I2V</span>
+            </th>
+            <th>
+                <a href="assets/fig6/ex2/qwen.mp4"> <video width="170" src="assets/fig6/ex2/qwen.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Qwen + I2V</span>
+            </th>
+            <th>
+                <a href="assets/fig6/ex2/anyv2v.mp4"> <video width="170" src="assets/fig6/ex2/anyv2v.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">AnyV2V</span>
+            </th>
+            <th>
+                <a href="assets/fig6/ex2/skyreels.mp4"> <video width="170" src="assets/fig6/ex2/skyreels.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">SkyReels</span>
+            </th>
+            <th>
+                <a href="assets/fig6/ex2/ours.mp4"> <video width="170" src="assets/fig6/ex2/ours.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label-highlight">StM (Ours)</span>
+            </th>
+        </tr>
+
+        <tr>
+            <td colspan="7" align="center" style="padding-top: 10px;"><strong><span style="font-family: Chalkduster">"A pig is walking"</span> (Lighting & Alignment to Background)</strong></td>
+        </tr>
+        <tr>
+            <th valign="middle">
+                <a href="assets/fig6/ex3/fg_cb.mp4"> <video width="170" src="assets/fig6/ex3/fg_cb.mp4" autoplay="" loop="" controls="" muted="" class="stacked-video"> </video></a> 
+                <span class="video-label">Input Foreground</span>
+                <br>
+                <a href="assets/fig6/ex3/bg.mp4"> <video width="170" src="assets/fig6/ex3/bg.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Background</span>
+            </th>
+            <th>
+                <a href="assets/fig6/ex3/copy_paste.mp4"> <video width="170" src="assets/fig6/ex3/copy_paste.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Copy-Paste + I2V</span>
+            </th>
+            <th>
+                <a href="assets/fig6/ex3/pbe.mp4"> <video width="170" src="assets/fig6/ex3/pbe.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">PBE + I2V</span>
+            </th>
+            <th>
+                <a href="assets/fig6/ex3/qwen.mp4"> <video width="170" src="assets/fig6/ex3/qwen.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Qwen + I2V</span>
+            </th>
+            <th>
+                <a href="assets/fig6/ex3/anyv2v.mp4"> <video width="170" src="assets/fig6/ex3/anyv2v.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">AnyV2V</span>
+            </th>
+            <th>
+                <a href="assets/fig6/ex3/skyreels.mp4"> <video width="170" src="assets/fig6/ex3/skyreels.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">SkyReels</span>
+            </th>
+            <th>
+                <a href="assets/fig6/ex3/ours.mp4"> <video width="170" src="assets/fig6/ex3/ours.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label-highlight">StM (Ours)</span>
+            </th>
+        </tr>
+      </tbody>
+  </table>
+  
+  <h3 align="left">Additional Comparisons</h3>
+  <p>Further comparisons on challenging scenarios involving complex foreground motion and background interactions.</p>
+  <table width="1200" align="center">
+    <tbody>
+        <tr>
+             <td colspan="7" align="center" style="padding-top: 10px;"><strong><span style="font-family: Chalkduster">"A car is turning"</span> (Preservation of Semantic Action & Background)</strong></td>
+        </tr>
+        <tr>
+            <th valign="middle">
+                <a href="assets/fig6/extra1/fg_cb.mp4"> <video width="170" src="assets/fig6/extra1/fg_cb.mp4" autoplay="" loop="" controls="" muted="" class="stacked-video"> </video></a> 
+                <span class="video-label">Input Foreground</span>
+                <br>
+                <a href="assets/fig6/extra1/bg.mp4"> <video width="170" src="assets/fig6/extra1/bg.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Input Background</span>
+            </th>
+            <th>
+                <a href="assets/fig6/extra1/copy_paste.mp4"> <video width="170" src="assets/fig6/extra1/copy_paste.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Copy-Paste + I2V</span>
+            </th>
+            <th>
+                <a href="assets/fig6/extra1/pbe.mp4"> <video width="170" src="assets/fig6/extra1/pbe.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">PBE + I2V</span>
+            </th>
+            <th>
+                <a href="assets/fig6/extra1/qwen.mp4"> <video width="170" src="assets/fig6/extra1/qwen.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">Qwen + I2V</span>
+            </th>
+            <th>
+                <a href="assets/fig6/extra1/anyv2v.mp4"> <video width="170" src="assets/fig6/extra1/anyv2v.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">AnyV2V</span>
+            </th>
+            <th>
+                <a href="assets/fig6/extra1/skyreels.mp4"> <video width="170" src="assets/fig6/extra1/skyreels.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label">SkyReels</span>
+            </th>
+            <th>
+                <a href="assets/fig6/extra1/ours.mp4"> <video width="170" src="assets/fig6/extra1/ours.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+                <span class="video-label-highlight">StM (Ours)</span>
+            </th>
+        </tr>
+    </tbody>
+  </table>
+
+  <hr style="height:3px">
+  
+<h2 id="ablation" align="left"><a name="ablation"></a>Ablation Study</h2>
+<p>
+    We evaluate the contribution of <strong>Transformation-Aware Augmentation</strong> and <strong>Identity-Preservation Loss</strong>. 
+    Without augmentation, the model learns a "copy-paste" shortcut. Without ID loss, the foreground subject loses its original appearance.
+</p>
+
+<table width="1200" align="center">
+  <tbody>
+      <tr>
+          <th valign="middle">
+            <a href="assets/ablation_study/fg_cb.mp4"> <video width="200" src="assets/ablation_study/fg_cb.mp4" autoplay="" loop="" controls="" muted="" class="stacked-video"> </video></a>
+            <span class="video-label">Input Foreground</span>
+            <br>
+            <a href="assets/ablation_study/bg.mp4"> <video width="200" src="assets/ablation_study/bg.mp4" autoplay="" loop="" controls="" muted=""> </video></a>
+            <span class="video-label">Input Background</span>
+          </th>
+          <th>
+              <a href="assets/ablation_study/full_model.mp4"> <video width="240" src="assets/ablation_study/full_model.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label-highlight">Full Model (StM)</span>
+          </th>
+          <th>
+              <a href="assets/ablation_study/wo_aug.mp4"> <video width="240" src="assets/ablation_study/wo_aug.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">w/o Augmentation</span>
+          </th>
+          <th>
+              <a href="assets/ablation_study/wo_loss.mp4"> <video width="240" src="assets/ablation_study/wo_loss.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">w/o ID Loss</span>
+          </th>
+          <th>
+              <a href="assets/ablation_study/wo_both.mp4"> <video width="240" src="assets/ablation_study/wo_both.mp4" autoplay="" loop="" controls="" muted=""> </video></a> 
+              <span class="video-label">w/o Both</span>
+          </th>
+      </tr>
+      <tr> 
+        <td colspan="5" align="center">
+            <em>Note: 'w/o Augmentation' lacks affordance-awareness (e.g., static background), 'w/o ID Loss' causes appearance drift.</em>
+        </td> 
+     </tr>
+  </tbody>
+</table>
+
+<hr style="height:3px">
+
+<h2 id="user-study" align="left"><a name="user-study"></a>User Study / VLLM As A Judge</h2>
+<p>
+    We conducted pairwise preference studies using both human raters (50 subjects) and <strong>Gemini 2.5 Pro (VLLM)</strong> as a judge.
+    StM significantly outperforms baselines in <strong>Identity Preservation</strong>, <strong>Motion Alignment</strong>, and <strong>FG-BG Harmony</strong>.
+</p>
+
+<table width="1200" align="center">
+    <tbody>
+        <tr>
+            <th align="center">
+                <img src="assets/user_study/userstudy_results.png" width="100%">
+                <br><span class="video-label" style="font-size: 18px;">User Study</span>
+            </th>
+        </tr>
+        <tr>
+            <th align="center" style="padding-top: 20px;">
+                <img src="assets/user_study/vllm_results.png" width="100%">
+                <br><span class="video-label" style="font-size: 18px;">VLLM-as-a-Judge</span>
+            </th>
+        </tr>
+        <tr>
+            <td align="left">
+                <br>
+                <ul>
+                    <li><strong>FG-BG Harmony:</strong> StM achieves >85% win rates against most baselines.</li>
+                    <li><strong>Motion Alignment:</strong> VLLM judges gave StM a 90-100% preference over static I2V baselines.</li>
+                    <li><strong>Overall Quality:</strong> StM is consistently preferred for generating realistic and coherent videos.</li>
+                </ul>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<hr style="height:3px">
+
+<h2 id="limitations" align="left"><a name="limitations"></a>Limitations</h2>
+
+<h3>Trade-off: Visual Fidelity vs. Textual Alignment</h3>
+<p>
+    Our results indicate a trade-off between preserving the source video's motion/identity and strictly adhering to the text prompt.
+    While methods like SkyReels score higher on textual alignment metrics (M4), they often fail to preserve the original motion of the subject.
+    StM prioritizes the visual fidelity of the provided video layers, which provides better control for composition but may result in slightly lower text-alignment scores when the prompt contradicts the visual input.
+</p>
+
+<h3>Complex Occlusions</h3>
+<p>
+    In scenarios with extreme occlusions in the foreground video, the Decomposer may struggle to extract a clean mask, leading to artifacts in the composition process. Future work will focus on improving the segmentation robustness.
+</p>
+
+<p><br>
+  </p>
+  <p>&nbsp;</p>
+
+
+  <p>
+    <a name="ref-cogvideo" id="ref-cogvideo"></a>
+    [1] Zhuoyi Yang et al. CogVideoX: Text-to-video diffusion models with an expert transformer. ICLR 2025.
+  </p>
+  <p>
+    <a name="ref-skyreels" id="ref-skyreels"></a>
+    [2] Zhengcong Fei et al. SkyReels-A2: Compose anything in video diffusion transformers. arXiv 2025.
+  </p>
+  <p>
+    <a name="ref-anyv2v" id="ref-anyv2v"></a>
+    [3] Max Ku et al. AnyV2V: A tuning-free framework for any video-to-video editing tasks. TMLR 2024.
+  </p>
+  <p>
+    <a name="ref-layerflow" id="ref-layerflow"></a>
+    [4] Sihui Ji et al. LayerFlow: A unified model for layer-aware video generation. SIGGRAPH 2025.
+  </p>
+  <p>
+    <a name="ref-minimax" id="ref-minimax"></a>
+    [5] Bojia Zi et al. Minimax-Remover: Taming bad noise helps video object removal. arXiv 2025.
+  </p>
+</div>
+
+</body></html>
