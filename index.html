@@ -435,53 +435,6 @@
     <div class="container is-max-desktop">
       <div class="columns is-centered has-text-centered">
         <div class="column is-full-width">
-          <h2 class="title is-3 custom-header-box">Multi Object Composition</h2>
-          <div class="video-selector-container" id="gallery-multi">
-            <div class="main-stage">
-              <div class="columns is-vcentered">
-                <div class="column is-4">
-                  <h4 class="title is-5">Input Foreground</h4>
-                  <video id="vid-multi-fg" autoplay muted loop playsinline width="100%" style="border-radius: 8px; background: #000;">
-                    <source src="assets/main_videos/ex10/fg_cb.mp4" type="video/mp4">
-                  </video>
-                </div>
-                <div class="column is-4">
-                  <h4 class="title is-5">Input Background</h4>
-                  <video id="vid-multi-bg" autoplay muted loop playsinline width="100%" style="border-radius: 8px; background: #000;">
-                    <source src="assets/main_videos/ex10/bg.mp4" type="video/mp4">
-                  </video>
-                </div>
-                <div class="column is-4">
-                  <h4 class="title is-5" style="color: #2E7D32;">StM Result</h4>
-                  <video id="vid-multi-res" class="result-highlight" autoplay muted loop playsinline width="100%" style="background: #000;">
-                    <source src="assets/main_videos/ex10/ours.mp4" type="video/mp4">
-                  </video>
-                </div>
-              </div>
-              <h4 id="prompt-multi" class="title is-5 prompt-style">"A pig is walking indoors"</h4>
-            </div>
-            <div class="thumb-row">
-              <div class="video-thumb active" onclick="updateGallery('multi', 10, this)">
-                <video muted loop onmouseover="this.play()" onmouseout="this.pause()" src="assets/main_videos/ex10/ours.mp4"></video>
-                <div style="background:#ddd; font-size:12px; font-weight:bold;">Ex 10</div>
-              </div>
-              <div class="video-thumb" onclick="updateGallery('multi', 14, this)">
-                <video muted loop onmouseover="this.play()" onmouseout="this.pause()" src="assets/main_videos/ex14/ours.mp4"></video>
-                <div style="background:#ddd; font-size:12px; font-weight:bold;">Ex 14</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="hero is-light section-spacer">
-  <div class="hero-body">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered has-text-centered">
-        <div class="column is-full-width">
           <h2 class="title is-3 custom-header-box">Logically Impossible Composition</h2>
           <div class="video-selector-container" id="gallery-impossible">
             <div class="main-stage">
@@ -519,6 +472,53 @@
               <div class="video-thumb" onclick="updateGallery('impossible', 13, this)">
                 <video muted loop onmouseover="this.play()" onmouseout="this.pause()" src="assets/main_videos/ex13/ours.mp4"></video>
                 <div style="background:#ddd; font-size:12px; font-weight:bold;">Ex 13</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero is-light section-spacer">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-full-width">
+          <h2 class="title is-3 custom-header-box">Multi Object Composition</h2>
+          <div class="video-selector-container" id="gallery-multi">
+            <div class="main-stage">
+              <div class="columns is-vcentered">
+                <div class="column is-4">
+                  <h4 class="title is-5">Input Foreground</h4>
+                  <video id="vid-multi-fg" autoplay muted loop playsinline width="100%" style="border-radius: 8px; background: #000;">
+                    <source src="assets/main_videos/ex10/fg_cb.mp4" type="video/mp4">
+                  </video>
+                </div>
+                <div class="column is-4">
+                  <h4 class="title is-5">Input Background</h4>
+                  <video id="vid-multi-bg" autoplay muted loop playsinline width="100%" style="border-radius: 8px; background: #000;">
+                    <source src="assets/main_videos/ex10/bg.mp4" type="video/mp4">
+                  </video>
+                </div>
+                <div class="column is-4">
+                  <h4 class="title is-5" style="color: #2E7D32;">StM Result</h4>
+                  <video id="vid-multi-res" class="result-highlight" autoplay muted loop playsinline width="100%" style="background: #000;">
+                    <source src="assets/main_videos/ex10/ours.mp4" type="video/mp4">
+                  </video>
+                </div>
+              </div>
+              <h4 id="prompt-multi" class="title is-5 prompt-style">"A pig is walking indoors"</h4>
+            </div>
+            <div class="thumb-row">
+              <div class="video-thumb active" onclick="updateGallery('multi', 10, this)">
+                <video muted loop onmouseover="this.play()" onmouseout="this.pause()" src="assets/main_videos/ex10/ours.mp4"></video>
+                <div style="background:#ddd; font-size:12px; font-weight:bold;">Ex 10</div>
+              </div>
+              <div class="video-thumb" onclick="updateGallery('multi', 14, this)">
+                <video muted loop onmouseover="this.play()" onmouseout="this.pause()" src="assets/main_videos/ex14/ours.mp4"></video>
+                <div style="background:#ddd; font-size:12px; font-weight:bold;">Ex 14</div>
               </div>
             </div>
           </div>
