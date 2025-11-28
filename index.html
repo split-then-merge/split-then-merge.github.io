@@ -188,6 +188,7 @@
     </div>
   </div>
 </section>
+
 <section class="section">
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
@@ -195,7 +196,13 @@
         
         <div class="tabs is-toggle is-toggle-rounded is-centered" style="margin-bottom: 15px;">
           <ul>
-            <li class="is-active" id="tab-inference">
+            <li class="is-active" id="tab-demo">
+              <a href="javascript:void(0)" onclick="setOverviewMode('demo')">
+                <span class="icon is-small"><i class="fas fa-film"></i></span>
+                <span>Demo</span>
+              </a>
+            </li>
+            <li id="tab-inference">
               <a href="javascript:void(0)" onclick="setOverviewMode('inference')">
                 <span class="icon is-small"><i class="fas fa-magic"></i></span>
                 <span>Inference Overview</span>
@@ -210,9 +217,9 @@
           </ul>
         </div>
 
-        <div class="publication-video" style="border: 1px solid #ddd; border-radius: 10px; overflow: hidden;">
-          <video id="overview-video" autoplay controls muted loop playsinline width="100%">
-            <source src="assets/method_overview/animation_v2.mp4" type="video/mp4">
+        <div style="border: 1px solid #ddd; border-radius: 10px; overflow: hidden; width: 100%;">
+          <video id="overview-video" autoplay controls muted loop playsinline style="width: 100%; height: auto; display: block;">
+            <source src="assets/method_overview/demo_v2.mp4" type="video/mp4">
           </video>
         </div>
 
